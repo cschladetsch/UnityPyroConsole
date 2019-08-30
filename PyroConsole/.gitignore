@@ -1,0 +1,16 @@
+# Generic LiminalVR .gitignore file for top-level.
+
+/.current
+
+/Library
+/Packages
+
+/Builds
+
+/obj
+/bin
+
+/Tmp
+/Temp
+/tmp
+/temp

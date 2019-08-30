@@ -1,0 +1,21 @@
+cats = GetInstances("CategoryColumnView")
+
+fun GotoCat(n)
+	cats[n].Agent.LoadCategory()
+
+fun GotoCalm()
+	GotoCat(3)
+
+fun Show(n)
+	rip = GetInstances("ExperienceIconView")[n]
+	rip.Agent.PreviewExperience()
+
+fun Play()
+	view = GetInstance("ExperienceOverviewView")
+	view.PlayExperience()
+
+fun Home()
+	nav.GoHome()
+	`drop`
+
+

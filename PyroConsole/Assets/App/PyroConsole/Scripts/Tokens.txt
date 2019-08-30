@@ -1,0 +1,16 @@
+foo
+1 2 3
++ = * /
+fun
+assert
+''
+new
+0.12
+"hello"
+if (1 ==  2)
+	Info("test")
+else
+	Error("foo")
+assert(1 >=  2)
+assert(2 < 3)
+class

@@ -1,0 +1,15 @@
+{
+    "Equiv":"#4298f5",
+    "Float":"#8bdb51",
+    "Int":"#8bdb51",
+    "Fun":"#65cceb",
+    "Dot":"#a3a7a8",
+    "Multiply":"#a3a7a8",
+    "Divide":"#a3a7a8",
+    "Plus":"#a3a7a8",
+    "PlusAssign":"#a3a7a8",
+    "Minus":"#a3a7a8",
+    "MinusAssign":"#a3a7a8",
+    "Comment":"#ebc82d",
+    "Quote":"#855ee0"
+}
