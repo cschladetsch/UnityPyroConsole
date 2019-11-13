@@ -24,11 +24,15 @@ public class ConsoleInput
             case '\n':
                 base.Append(input);
                 break;
+
             case '"':
+                base.Append('"');
+                break;
+            /*case '"':
                 base.Append('"');
                 base.Append('"');
                 selectionAnchorPosition = selectionAnchorPosition - 1;
-                break;
+                break;*/
             default:
                 base.Append(input);
                 break;

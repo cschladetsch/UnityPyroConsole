@@ -73,6 +73,16 @@ namespace App.PyroConsole
             PiInput.onValueChanged.AddListener(s => PiInput.NeedUpdate = true);
             RhoInput.onValueChanged.AddListener(s => RhoInput.NeedUpdate = true);
             PiToggle.onValueChanged.AddListener(on => SetLang(on ? ELanguage.Pi : ELanguage.Rho));
+
+            var scope = _pyro.Executor.Scope;
+            scope["console"] = this;
+            //scope["print"] = Pyro.Create.Function((a) => this.info(a));
+            scope["light"] = FindObjectOfType<Light>();
+        }
+
+        public void Info(string text)
+        {
+            WriteConsole(ELogLevel.Info, text);
         }
 
         private void UpdateFontSize(float size)
@@ -233,6 +243,8 @@ namespace App.PyroConsole
         {
             // TODO: popup over error location.
             Debug.LogError($"{text}");
+            Debug.LogWarning($"{_pyro.Translator.Error}");
+            Debug.LogWarning($"{_pyro.Error}");
             WriteConsole(ELogLevel.Error, text);
         }
 
