@@ -1,9 +1,0 @@
-cats = GetInstances("CategoryColumnView")
-calm = cats[3]
-calm.Agent.LoadCategory()
-
-rip = GetInstances("ExperienceIconView")[0]
-rip.Agent.PreviewExperience()
-
-nav.GoHome()
-`drop`
