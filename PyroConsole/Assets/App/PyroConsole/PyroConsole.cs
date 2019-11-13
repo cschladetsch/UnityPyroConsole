@@ -136,7 +136,6 @@ namespace App.PyroConsole
         private void ToggleActive(bool active)
         {
             Canvas.enabled = active;
-//            FindObjectOfType<VRPointerInputModule>().enabled = !active;
             if (active)
                 _input.Select();
         }
