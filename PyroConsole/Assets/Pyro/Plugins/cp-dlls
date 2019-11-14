@@ -2,7 +2,7 @@
 
 src='/s/Packages/Pyro/Bin'
 
-dlls=(Pyro.AppCommon.dll Pyro.Core.dll Pyro.ExecutionContext.dll Pyro.Executor.dll Pyro.LanguageCommon.dll Pyro.PiLang.dll Pyro.RhoLang.dll)
+dlls=(Pyro.AppCommon.dll Pyro.Core.dll Pyro.ExecutionContext.dll Pyro.Executor.dll Pyro.LanguageCommon.dll Pyro.Network.dll Pyro.PiLang.dll Pyro.RhoLang.dll)
 
 for dll in ${dlls[@]}
 do
