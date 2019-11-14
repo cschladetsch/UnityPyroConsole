@@ -143,6 +143,8 @@
             LogText.text = $"<size=80%><color={color}>{DateTime.Now.ToShortTimeString()}:</size> {text}</color>" + "\n" + LogText.text;
             if (bold)
                 LogText.fontStyle ^= FontStyles.Bold;
+
+            Debug.Log($"Write: {LogText.text}");
         }
 
         private static VoidFunction NotDone()

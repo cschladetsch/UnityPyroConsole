@@ -1,13 +1,11 @@
 ﻿// ReSharper disable DelegateSubtraction
 
-using Newtonsoft.Json;
-using Pyro.RhoLang.Lexer;
-
 namespace App.PyroConsole
 {
     using System;
     using System.IO;
     using System.Text;
+    using System.Linq;
     using System.Collections.Generic;
     using UnityEngine;
     using UnityEngine.UI;
@@ -18,6 +16,9 @@ namespace App.PyroConsole
     using Pyro.Exec;
     using Pyro.ExecutionContext;
     using Pyro.Language;
+    using Pyro.Network;
+    using Pyro.RhoLang.Lexer;
+    using Newtonsoft.Json;
 
     /// <summary>
     /// Interactive console supporting all Pyro languages.
@@ -25,6 +26,8 @@ namespace App.PyroConsole
     public partial class PyroConsole
         : MonoBehaviour
     {
+        public int ListenPort = 9999;
+
         public Button SaveButton;
         public Button LoadButton;
         public Toggle PiToggle;
@@ -53,6 +56,10 @@ namespace App.PyroConsole
         private ColoriseRho _coloriseRho;
         private readonly ColoriseRho _colorisePi;
         private readonly IReactiveProperty<float> _fontSize = new ReactiveProperty<float>(36);
+
+        private IPeer _peer;
+        private string HostName => _peer?.Remote?.HostName ?? "local";
+        private int HostPort => _peer?.Remote?.HostPort ?? 0;
 
         private static readonly string[] _namespaces =
         {
@@ -107,18 +114,62 @@ namespace App.PyroConsole
             RhoInput.customCaretColor = true;
             RhoInput.caretColor = new Color(0.87f, 0f, 1f);
             RhoInput.selectionColor = new Color(0.94f, 0.52f, 1f);
+
+            StartPeer();
+        }
+
+        protected void Shutdown()
+        {
+            Error("Shutting down...");
+            _peer?.Stop();
+            Error("Done");
+        }
+
+        private bool StartPeer()
+        {
+            _peer = Pyro.Network.Create.NewPeer(ListenPort);
+            _peer.OnReceivedRequest += (server, client, text) => WriteConsole(ELogLevel.Verbose, text);
+
+            _peer.OnWrite += (t, c) => WriteConsole(ELogLevel.Info, t);
+            _peer.OnReceivedRequest += _peer_OnReceivedRequest;
+            _peer.OnReceivedResponse += _peer_OnReceivedResponse;
+
+            return _peer.SelfHost() || Error("Failed to start local server");
         }
 
         private void OnEnable()
         {
-            PiInput.OnSubmitLine += Execute;
-            RhoInput.OnSubmitLine += Execute;
+            PiInput.OnSubmitLine += Exec;
+            RhoInput.OnSubmitLine += Exec;
+
+        }
+
+        private void _peer_OnReceivedResponse(IServer server, IClient client, string text)
+        {
+            WriteConsole(ELogLevel.Warn, $"Response: {server} {client}: {text}");
+        }
+
+        private void _peer_OnReceivedRequest(IServer server, IClient client, string text)
+        {
+            WriteConsole(ELogLevel.Warn, $"Request: {server} {client}: {text}");
+        }
+
+        public void Refresh()
+        {
+            WriteStack();
         }
 
         private void OnDisable()
         {
-            PiInput.OnSubmitLine -= Execute;
-            RhoInput.OnSubmitLine -= Execute;
+            PiInput.OnSubmitLine -= Exec;
+            RhoInput.OnSubmitLine -= Exec;
+
+            Shutdown();
+        }
+
+        void Exec(string text)
+        {
+            Execute(text);
         }
 
         private void Update()
@@ -206,34 +257,46 @@ namespace App.PyroConsole
             return false;
         }
 
-        private void Execute(string input)
+        private bool Execute(string input)
         {
             if (string.IsNullOrEmpty(input))
-                return;
+                return true;
 
             if (PreProcess(input))
-                return;
+                return true;
 
             try
             {
-                if (!_pyro.Exec(input.Replace('\'', '`')))
-                    Error(_pyro.Error);
+                input = input.Replace('\'', '`');
+                if (!_pyro.Translate(input, out var cont))
+                    return Error(_pyro.Error);
+                
+                if (!_peer.Execute(cont))
+                    return Error(_peer.Error);
+
+                Debug.LogWarning($"Exec: {_peer.Remote}: {_pyro.Registry.ToPiScript(cont)} {_peer.Remote.Context.Executor.DataStack}");
+                int n = 0;
+                foreach (var e in _peer.Remote.Context.Executor.DataStack)
+                {
+                    Debug.Log($"{n}: {e}");
+                }
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
-                WriteConsole(ELogLevel.Error, $"{e.Message}: {e.InnerException?.Message}");
-                throw;
+                return Error($"{e.Message}: {e.InnerException?.Message}");
             }
 
             WriteStack();
+
+            return true;
         }
 
-        private void Error(string text)
+        private bool Error(string text)
         {
             // TODO: popup over error location.
             Debug.LogError($"{text}");
             WriteConsole(ELogLevel.Error, text);
+            return false;
         }
 
         private bool PreProcess(string input)
@@ -264,7 +327,9 @@ namespace App.PyroConsole
         {
             var sb = new StringBuilder();
             var n = 0;
-            foreach (var result in _data)
+            var client = _peer.Remote;
+            var results = client.Results();
+            foreach (var result in results.ToList())
             {
                 sb.AppendLine($"<color=#a0a0a0>{n++:D2}</color> {_pyro.Registry.ToPiScript(result)}");
                 if (n > max)
