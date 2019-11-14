@@ -144,7 +144,7 @@
             if (bold)
                 LogText.fontStyle ^= FontStyles.Bold;
 
-            Debug.Log($"Write: {LogText.text}");
+            //Debug.Log($"Write: {LogText.text}");
         }
 
         private static VoidFunction NotDone()

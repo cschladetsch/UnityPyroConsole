@@ -116,22 +116,23 @@ namespace App.PyroConsole
             RhoInput.selectionColor = new Color(0.94f, 0.52f, 1f);
 
             StartPeer();
+            //_peer.Execute("1 2 3");
         }
 
         protected void Shutdown()
         {
-            Error("Shutting down...");
+            WriteConsole(ELogLevel.Info, "Shutting down...");
             _peer?.Stop();
-            Error("Done");
+            //Error("Done");
         }
 
         private bool StartPeer()
         {
             _peer = Pyro.Network.Create.NewPeer(ListenPort);
-            _peer.OnReceivedRequest += (server, client, text) => WriteConsole(ELogLevel.Verbose, text);
+            //_peer.OnReceivedRequest += (server, client, text) => WriteConsole(ELogLevel.Verbose, text);
 
             _peer.OnWrite += (t, c) => WriteConsole(ELogLevel.Info, t);
-            _peer.OnReceivedRequest += _peer_OnReceivedRequest;
+            //_peer.OnReceivedRequest += _peer_OnReceivedRequest;
             _peer.OnReceivedResponse += _peer_OnReceivedResponse;
 
             return _peer.SelfHost() || Error("Failed to start local server");
@@ -144,10 +145,13 @@ namespace App.PyroConsole
 
         }
 
-        private void _peer_OnReceivedResponse(IServer server, IClient client, string text)
+        private void _peer_OnReceivedResponse(IClient client, string text)
         {
-            WriteConsole(ELogLevel.Warn, $"Response: {server} {client}: {text}");
+            //WriteConsole(ELogLevel.Warn, $"Response: {server} {client}: {text}");
+            _needRefresh = true;
         }
+
+        bool _needRefresh;
 
         private void _peer_OnReceivedRequest(IServer server, IClient client, string text)
         {
@@ -174,6 +178,9 @@ namespace App.PyroConsole
 
         private void Update()
         {
+            if (_needRefresh)
+                Refresh();
+
             if (Input.GetKeyDown(KeyCode.F1))
                 _active.Value = !_active.Value;
 
@@ -270,16 +277,9 @@ namespace App.PyroConsole
                 input = input.Replace('\'', '`');
                 if (!_pyro.Translate(input, out var cont))
                     return Error(_pyro.Error);
-                
+
                 if (!_peer.Execute(cont))
                     return Error(_peer.Error);
-
-                Debug.LogWarning($"Exec: {_peer.Remote}: {_pyro.Registry.ToPiScript(cont)} {_peer.Remote.Context.Executor.DataStack}");
-                int n = 0;
-                foreach (var e in _peer.Remote.Context.Executor.DataStack)
-                {
-                    Debug.Log($"{n}: {e}");
-                }
             }
             catch (Exception e)
             {
