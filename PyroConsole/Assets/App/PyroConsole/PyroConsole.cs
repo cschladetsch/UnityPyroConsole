@@ -132,10 +132,16 @@ namespace App.PyroConsole
             //_peer.OnReceivedRequest += (server, client, text) => WriteConsole(ELogLevel.Verbose, text);
 
             _peer.OnWrite += (t, c) => WriteConsole(ELogLevel.Info, t);
-            //_peer.OnReceivedRequest += _peer_OnReceivedRequest;
+            _peer.OnReceivedRequest += _peer_OnReceivedRequest;
             _peer.OnReceivedResponse += _peer_OnReceivedResponse;
+            _peer.OnConnected += PeerOnOnConnected;
 
             return _peer.SelfHost() || Error("Failed to start local server");
+        }
+
+        private void PeerOnOnConnected(IPeer peer, IClient client)
+        {
+            //WriteConsole(ELogLevel.Info, $"Connected to {client}");
         }
 
         private void OnEnable()
@@ -153,9 +159,10 @@ namespace App.PyroConsole
 
         bool _needRefresh;
 
-        private void _peer_OnReceivedRequest(IServer server, IClient client, string text)
+        private void _peer_OnReceivedRequest(IClient client, string text)
         {
-            WriteConsole(ELogLevel.Warn, $"Request: {server} {client}: {text}");
+            //WriteConsole(ELogLevel.Warn, $"Request: {server} {client}: {text}");
+            Debug.Log($"Received {text}");
         }
 
         public void Refresh()
@@ -327,8 +334,7 @@ namespace App.PyroConsole
         {
             var sb = new StringBuilder();
             var n = 0;
-            var client = _peer.Remote;
-            var results = client.Results();
+            var results = _peer.Remote.Results();
             foreach (var result in results.ToList())
             {
                 sb.AppendLine($"<color=#a0a0a0>{n++:D2}</color> {_pyro.Registry.ToPiScript(result)}");
