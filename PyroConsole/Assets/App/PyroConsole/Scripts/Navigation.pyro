@@ -1,9 +1,0 @@
-b=GetInstance("App.Views.Impl.CategoryColumnView")
-b.Agent.LoadCategory()
-c=GetInstance("App.Views.Impl.ExperienceIconView")
-d=GetInstance("App.Views.Impl.NavigationPanelView")
-c.Agent.PreviewExperience()
-servernav.GoBack()
-nav.GoHome()
-d.Agent.HomePressed()
-`clear`
