@@ -76,9 +76,10 @@ namespace Pyro.Network.Impl
         public void StartServer(int listenPort)
         {
             _server = new Server(this, listenPort);
-            _server.ReceivedRequest
-                += (client, text)
-                => OnReceivedRequest?.Invoke(client, text);
+            _server.ReceivedRequest += (client, text) => 
+            {
+                OnReceivedRequest?.Invoke(client, text);
+            };
         }
 
         public bool Execute(string script)

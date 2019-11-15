@@ -161,13 +161,13 @@ namespace App.PyroConsole
 
         private void _peer_OnReceivedRequest(IClient client, string text)
         {
-            //WriteConsole(ELogLevel.Warn, $"Request: {server} {client}: {text}");
             Debug.Log($"Received {text}");
+            _needRefresh = true;
         }
 
         public void Refresh()
         {
-            WriteStack();
+            _needRefresh = true;
         }
 
         private void OnDisable()
@@ -186,7 +186,7 @@ namespace App.PyroConsole
         private void Update()
         {
             if (_needRefresh)
-                Refresh();
+                WriteStack();
 
             if (Input.GetKeyDown(KeyCode.F1))
                 _active.Value = !_active.Value;
@@ -327,6 +327,7 @@ namespace App.PyroConsole
         private bool WriteStack()
         {
             Output.text = LocalDataStackToString();
+            _needRefresh = false;
             return true;
         }
 

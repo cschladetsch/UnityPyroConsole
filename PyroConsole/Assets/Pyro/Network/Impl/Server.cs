@@ -106,16 +106,19 @@ namespace Pyro.Network.Impl
         {
             try
             {
-                ReceivedRequest?.Invoke(_Peer.GetClient(sender), pi);
                 RunLocally(pi);
-                return SendResponse(sender);
+                var stack = _Registry.ToPiScript(_Exec.DataStack.ToList());
+                return Send(sender, stack);
             }
             catch (Exception e)
             {
                 var msg = $"{e.Message} {e.InnerException?.Message}";
                 _Exec.Push($"Error: {msg}");
-                SendResponse(sender);
                 return Error(msg);
+            }
+            finally
+            {
+                ReceivedRequest?.Invoke(_Peer.GetClient(sender), pi);
             }
         }
 
@@ -132,11 +135,6 @@ namespace Pyro.Network.Impl
             }
         }
 
-        private bool SendResponse(Socket sender)
-        {
-            var response = _Registry.ToPiScript(_Exec.DataStack.ToList());
-            return Send(sender, response);
-        }
         private void Listen()
         {
             _listener.BeginAccept(ConnectRequest, null);

@@ -104,7 +104,6 @@ namespace Pyro.Network.Impl
                 if (!_Context.Translate(pi, out var cont))
                     return Error($"Failed to translate {pi}");
 
-                fuuuuuck
                 cont.Scope = _Exec.Scope;
                 _Exec.Continue(cont);
                 _stack = _Exec.Pop<List<object>>();
