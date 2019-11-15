@@ -142,6 +142,12 @@ namespace App.PyroConsole
         private void PeerOnOnConnected(IPeer peer, IClient client)
         {
             //WriteConsole(ELogLevel.Info, $"Connected to {client}");
+            client.OnRecieved += Client_OnRecieved;
+        }
+
+        private void Client_OnRecieved(IClient client, System.Net.Sockets.Socket server)
+        {
+            _needRefresh = true;
         }
 
         private void OnEnable()
@@ -167,6 +173,7 @@ namespace App.PyroConsole
 
         public void Refresh()
         {
+            _peer.Remote.GetLatest();
             _needRefresh = true;
         }
 
@@ -285,7 +292,7 @@ namespace App.PyroConsole
                 if (!_pyro.Translate(input, out var cont))
                     return Error(_pyro.Error);
 
-                if (!_peer.Execute(cont))
+                if (!_peer.Execute(cont.ToText()))
                     return Error(_peer.Error);
             }
             catch (Exception e)
@@ -338,7 +345,7 @@ namespace App.PyroConsole
             var results = _peer.Remote.Results();
             foreach (var result in results.ToList())
             {
-                sb.AppendLine($"<color=#a0a0a0>{n++:D2}</color> {_pyro.Registry.ToPiScript(result)}");
+                sb.AppendLine($"<color=#a0a0a0>{n++:D2}</color> {result}");
                 if (n > max)
                     break;
             }

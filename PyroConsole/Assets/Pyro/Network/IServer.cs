@@ -10,7 +10,6 @@
         int ListenPort { get; }
 
         bool Start();
-        bool Execute(string pi);
         void Stop();
     }
 }

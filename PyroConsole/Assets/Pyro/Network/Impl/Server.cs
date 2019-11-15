@@ -97,16 +97,13 @@ namespace Pyro.Network.Impl
             _listener = null;
         }
 
-        public bool Execute(string script)
-        {
-            return _Context.Exec(script);
-        }
-
         protected override bool ProcessReceived(Socket sender, string pi)
         {
             try
             {
-                RunLocally(pi);
+                if (!RunLocally(pi))
+                    return false;
+
                 var stack = _Registry.ToPiScript(_Exec.DataStack.ToList());
                 return Send(sender, stack);
             }
@@ -122,17 +119,22 @@ namespace Pyro.Network.Impl
             }
         }
 
-        private void RunLocally(string pi)
+        private bool RunLocally(string pi)
         {
-            if (TranslatePi(pi).Code[0] is Continuation cont)
+            if (!_Context.Translate(pi, out var cont))
             {
+                _Exec.Push(_Context.Error);
+                return Error(_Context.Error);
+            }
+
+            if (cont.Code.Count > 0)
+            {
+                cont = cont.Code[0] as Continuation;
                 cont.Scope = _Exec.Scope;
                 _Exec.Continue(cont);
             }
-            else
-            {
-                _Exec.Push($"Error: {_Context.Error}");
-            }
+
+            return true;
         }
 
         private void Listen()

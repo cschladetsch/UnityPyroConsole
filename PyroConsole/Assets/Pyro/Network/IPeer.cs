@@ -47,7 +47,6 @@
         bool EnterClient(IClient client);
         bool Enter(int clientNumber);
         bool Execute(string pi);
-        bool Execute(Continuation continuation);
         void Leave();
 
         void Stop();

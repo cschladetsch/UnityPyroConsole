@@ -17,13 +17,15 @@ namespace Pyro.Network.Impl
         : NetCommon
         , IClient
     {
+        public event ClientReceivedHandler OnRecieved;
+
+        // TODO: Move to NetCommon
         public string HostName => GetHostName();
         public int HostPort => GetHostPort();
+        public override Socket Socket { get => _socket; set => _socket = value; }
 
         private Socket _socket;
-        private IList<object> _stack;
-
-        public override Socket Socket { get => _socket; set => _socket = value; }
+        private IList<string> _results = new List<string>();
 
         public Client(Peer peer)
             : base(peer)
@@ -33,23 +35,21 @@ namespace Pyro.Network.Impl
         public override string ToString()
             => $"Client: connected to {HostName}:{HostPort}";
 
-        public IEnumerable<string> Results()
+        public IList<string> Results()
         {
-            if (_stack == null)
-                yield break;
-
-            foreach (var elem in _stack)
-                yield return _Context.Registry.ToPiScript(elem);
+            return _results;
         }
 
         public void CompleteConnect(Socket socket)
             => _socket = socket;
 
-        public bool Continue(Continuation cont)
-            => Send(cont?.ToText());
+        //public bool Continue(Continuation cont)
+            //=> Send(cont?.ToText());
 
         public bool Continue(string script)
-            => !_Context.Translate(script, out var cont) ? Fail(_Context.Error) : Continue(cont);
+        {
+            return Send(script);
+        }
 
         public bool Connect(string hostName, int port)
         {
@@ -96,17 +96,26 @@ namespace Pyro.Network.Impl
             }
         }
 
+        public void GetLatest()
+        {
+            // hacks
+            Send(" ");
+        }
+
         protected override bool ProcessReceived(Socket sender, string pi)
         {
             try
             {
-                //WriteLine($"Recv Stack: {pi}");
                 if (!_Context.Translate(pi, out var cont))
                     return Error($"Failed to translate {pi}");
 
                 cont.Scope = _Exec.Scope;
                 _Exec.Continue(cont);
-                _stack = _Exec.Pop<List<object>>();
+                _results.Clear();
+                foreach (var elem in _Exec.Pop<IList<object>>())
+                    _results.Add(_Context.Registry.ToPiScript(elem));
+
+                OnRecieved?.Invoke(this, sender);
             }
             catch (Exception e)
             {
