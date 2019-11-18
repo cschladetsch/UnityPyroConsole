@@ -644,7 +644,7 @@ MonoBehaviour:
   UpdateLayoutElements: 1
   CurrentCamera: {fileID: 0}
   CursorTexture: {fileID: 2800000, guid: 1499b07727031c3449372d55f72dca6f, type: 3}
-  CursorHotSpot: {x: 16, y: 16}
+  CursorHotSpot: {x: 0.16, y: 0.15}
   DefaultCursorTexture: {fileID: 0}
   DefaultCursorHotSpot: {x: 0, y: 0}
   mode: 0
@@ -2049,6 +2049,7 @@ MonoBehaviour:
   StartupScripts:
   - {fileID: 4900000, guid: 4d338f95954a81a41a9ba5456761b4a4, type: 3}
   - {fileID: 0}
+  Visual: {fileID: 7792978911866838904}
   LogText: {fileID: 2149373655463018231}
 --- !u!1 &3809503102484529123
 GameObject:

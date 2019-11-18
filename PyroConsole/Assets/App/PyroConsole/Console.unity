@@ -887,36 +887,6 @@ PrefabInstance:
       propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 7835128004866781167, guid: d3592fc0627bfd548987e1820881c2d0,
-        type: 3}
-      propertyPath: m_LocalScale.x
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7835128004866781167, guid: d3592fc0627bfd548987e1820881c2d0,
-        type: 3}
-      propertyPath: m_LocalScale.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7835128004866781167, guid: d3592fc0627bfd548987e1820881c2d0,
-        type: 3}
-      propertyPath: m_LocalScale.z
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6349914084328041027, guid: d3592fc0627bfd548987e1820881c2d0,
-        type: 3}
-      propertyPath: CursorHotSpot.x
-      value: 0.16
-      objectReference: {fileID: 0}
-    - target: {fileID: 6349914084328041027, guid: d3592fc0627bfd548987e1820881c2d0,
-        type: 3}
-      propertyPath: CursorHotSpot.y
-      value: 0.15
-      objectReference: {fileID: 0}
-    - target: {fileID: 8679905897016354167, guid: d3592fc0627bfd548987e1820881c2d0,
-        type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 7984579431435487202, guid: d3592fc0627bfd548987e1820881c2d0,
         type: 3}
       propertyPath: m_AnchorMin.y
@@ -946,11 +916,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_SizeDelta.y
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3809503102468647408, guid: d3592fc0627bfd548987e1820881c2d0,
-        type: 3}
-      propertyPath: ListenPort
-      value: 9999
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d3592fc0627bfd548987e1820881c2d0, type: 3}
