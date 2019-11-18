@@ -42,6 +42,7 @@ namespace App.PyroConsole
         public Color[] Colors;
         public TextAsset RhoTheme;
         public TextAsset[] StartupScripts;
+        public GameObject Visual;
 
         private bool _booted;
         private Stack<object> _data => _pyro.Executor.DataStack;
@@ -196,7 +197,11 @@ namespace App.PyroConsole
                 WriteStack();
 
             if (Input.GetKeyDown(KeyCode.F1))
+            {
                 _active.Value = !_active.Value;
+                Visual.SetActive(!Visual.activeSelf);
+                return;
+            }
 
             if (_input.NeedUpdate)
             {
