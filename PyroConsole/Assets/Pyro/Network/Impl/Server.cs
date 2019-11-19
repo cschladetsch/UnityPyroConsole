@@ -130,9 +130,17 @@ namespace Pyro.Network.Impl
                 _Exec.Push(_Context.Error);
                 return Error(_Context.Error);
             }
+
+            if (cont.Code.Count == 0)
+                return true;
+
             cont = cont.Code[0] as Continuation;
+            if (cont == null)
+                return Error("Server.RunLocally: Continuation expected");
+            
             cont.Scope = _Exec.Scope;
             _Exec.Continue(cont);
+
             return true;
         }
 
@@ -147,7 +155,7 @@ namespace Pyro.Network.Impl
                 return;
 
             var socket = _listener.EndAccept(ar);
-            //WriteLine($"Serving {socket.RemoteEndPoint}");
+            WriteLine($"Serving {socket.RemoteEndPoint}");
             _Peer.NewConnection(socket);
             Receive(socket);
             Listen();

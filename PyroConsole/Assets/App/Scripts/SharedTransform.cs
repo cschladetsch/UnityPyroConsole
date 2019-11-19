@@ -45,7 +45,7 @@ namespace App
                     yield return self.ResumeAfter(TimeSpan.FromMilliseconds(UpdateMillis));
                     var p = transform.position;
                     Debug.Log($"Updating {FullName}");
-                    Remote?.Continue($"UpdateTransform({NetworkId}, {p.x}, {p.y}, {p.z})");
+                    Remote?.Continue($"remote.UpdateTransform({NetworkId}, {p.x}, {p.y}, {p.z})");
                 }
             }
 
@@ -56,7 +56,7 @@ namespace App
             Remote = remote;
             NetworkId = _nextNetworkId++;
             FullName = Utility.GetFullName(this);
-            remote.Continue($"AddRemote({FullName}, {NetworkId})");
+            remote.Continue($"remote.AddRemote({FullName}, {NetworkId})");
         }
 
         public void UpdatePosition(Vector3 pos)
