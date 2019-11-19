@@ -1,5 +1,5 @@
 #!/bin/sh
 
-cp /w/Packages/Pyro/Library/Network/*.cs .
-cp /w/Packages/Pyro/Library/Network/Impl/*.cs Impl
+cp /$WORK_LETTER/Packages/Pyro/Library/Network/*.cs .
+cp /$WORK_LETTER/Packages/Pyro/Library/Network/Impl/*.cs Impl
 

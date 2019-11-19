@@ -1,9 +1,12 @@
-﻿namespace App
+﻿using System.Collections.Generic;
+
+namespace App
 {
     using System;
     using System.Collections;
     using UnityEngine;
     using Flow;
+    using Pyro.Network;
 
     /// <summary>
     /// A Transform that sends or receives state updates to a remote client.
@@ -33,13 +36,13 @@
         /// <summary>
         /// Send updates to a remote client
         /// </summary>
-        public void SetRemote(Pyro.Network.IClient remote)
+        private void SetRemote(IClient remote)
         {
             IEnumerator SendUpdate(IGenerator self)
             {
                 while (true)
                 {
-                    self.ResumeAfter(TimeSpan.FromMilliseconds(UpdateMillis));
+                    yield return self.ResumeAfter(TimeSpan.FromMilliseconds(UpdateMillis));
                     var p = transform.position;
                     Debug.Log($"Updating {FullName}");
                     Remote?.Continue($"UpdateTransform({NetworkId}, {p.x}, {p.y}, {p.z})");
@@ -79,13 +82,28 @@
             if (!Main.Instance.IsServer)
                 return;
 
-            Main.Instance.Peer.OnConnected += Peer_OnConnected;
+            if (!_hooked)
+            {
+                Main.Instance.Peer.OnConnected += Peer_OnConnected;
+                _hooked = true;
+            }
+
+            if (_connect)
+            {
+                SetRemote(_client);
+                _connect = false;
+            }
         }
 
-        private void Peer_OnConnected(Pyro.Network.IPeer peer, Pyro.Network.IClient client)
+        private bool _hooked;
+        private bool _connect;
+        private IClient _client;
+
+        private void Peer_OnConnected(IPeer peer, IClient client)
         {
             Main.Instance.Peer.OnConnected -= Peer_OnConnected;
-            SetRemote(client);
+            _connect = true;
+            _client = client;
         }
 
         private void OnDestroy()

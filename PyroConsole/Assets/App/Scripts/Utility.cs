@@ -8,10 +8,16 @@ namespace App
     {
         public static string GetFullName(MonoBehaviour go)
         {
+            if (!go)
+                return string.Empty;
+            
             var full = $"/{go.name}";
             var parent = go.transform.parent;
-            while (parent != null)
+            while (parent)
+            {
                 full = $"/{parent.name}" + full;
+                parent = parent.parent;
+            }
 
             return full;
         }
