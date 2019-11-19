@@ -1,4 +1,7 @@
-﻿namespace Pyro.Network
+﻿using System;
+using Flow;
+
+namespace Pyro.Network
 {
     using System.Net.Sockets;
     using ExecutionContext;
@@ -11,5 +14,7 @@
     {
         Context Context { get; }
         Socket Socket { get; }
+        
+        IFuture<DateTime> Ping();
     }
 }

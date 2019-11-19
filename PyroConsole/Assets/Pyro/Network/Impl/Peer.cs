@@ -20,8 +20,6 @@ namespace Pyro.Network.Impl
     {
         public string LocalHostName => GetLocalHostname();
 
-        public event PeerWriteHandler OnWrite;
-
         public event MessageHandler OnReceivedRequest;
 
         // We connected to a new remote server (and made a new local client for it)

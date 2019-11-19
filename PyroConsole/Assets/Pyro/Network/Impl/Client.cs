@@ -1,10 +1,10 @@
-﻿using System;
-using System.Net;
-using System.Net.Sockets;
-using System.Collections.Generic;
-
-namespace Pyro.Network.Impl
+﻿namespace Pyro.Network.Impl
 {
+    using System;
+    using System.Net;
+    using System.Net.Sockets;
+    using System.Collections.Generic;
+
     using Exec;
 
     /// <inheritdoc cref="IClient" />
@@ -17,7 +17,7 @@ namespace Pyro.Network.Impl
         : NetCommon
         , IClient
     {
-        public event ClientReceivedHandler OnRecieved;
+        public event ClientReceivedHandler OnReceived;
 
         // TODO: Move to NetCommon
         public string HostName => GetHostName();
@@ -35,7 +35,7 @@ namespace Pyro.Network.Impl
         public override string ToString()
             => $"Client: connected to {HostName}:{HostPort}";
 
-        public IList<string> Results()
+        public IEnumerable<string> Results()
         {
             return _results;
         }
@@ -111,11 +111,12 @@ namespace Pyro.Network.Impl
 
                 cont.Scope = _Exec.Scope;
                 _Exec.Continue(cont);
+
                 _results.Clear();
-                foreach (var elem in _Exec.Pop<IList<object>>())
+                foreach (var elem in _Exec.DataStack)
                     _results.Add(_Context.Registry.ToPiScript(elem));
 
-                OnRecieved?.Invoke(this, sender);
+                OnReceived?.Invoke(this, sender);
             }
             catch (Exception e)
             {

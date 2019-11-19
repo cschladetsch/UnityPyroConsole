@@ -104,7 +104,8 @@ namespace Pyro.Network.Impl
                 if (!RunLocally(pi))
                     return false;
 
-                var stack = _Registry.ToPiScript(_Exec.DataStack.ToList());
+                // clear remote stack, send the datastack back as a list, then expand it to the remote stack, and drop the number of items that 'expand' adds to the stack
+                var stack = "clear " + _Registry.ToPiScript(_Exec.DataStack.ToList()) + " expand drop";
                 return Send(sender, stack);
             }
             catch (Exception e)
@@ -126,14 +127,9 @@ namespace Pyro.Network.Impl
                 _Exec.Push(_Context.Error);
                 return Error(_Context.Error);
             }
-
-            if (cont.Code.Count > 0)
-            {
-                cont = cont.Code[0] as Continuation;
-                cont.Scope = _Exec.Scope;
-                _Exec.Continue(cont);
-            }
-
+            cont = cont.Code[0] as Continuation;
+            cont.Scope = _Exec.Scope;
+            _Exec.Continue(cont);
             return true;
         }
 

@@ -1,4 +1,7 @@
-﻿namespace Pyro.Network
+﻿using System;
+using Flow;
+
+namespace Pyro.Network
 {
     using System.Collections.Generic;
     using System.Net.Sockets;
@@ -13,12 +16,12 @@
     public interface IClient
         : INetCommon
     {
-        event ClientReceivedHandler OnRecieved;
+        event ClientReceivedHandler OnReceived;
 
         string HostName { get; }
         int HostPort { get; }
 
-        IList<string> Results();
+        IEnumerable<string> Results();
         void GetLatest();
         bool Continue(string script);
         void Close();

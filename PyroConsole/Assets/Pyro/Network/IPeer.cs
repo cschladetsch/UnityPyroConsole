@@ -10,7 +10,6 @@
     /// </summary>
     public delegate void MessageHandler(IClient client, string text);
     public delegate void ConnectedHandler(IPeer peer, IClient client);
-    public delegate void PeerWriteHandler(EDebugLevel log, string text);
 
     /// <inheritdoc />
     /// <summary>
@@ -23,8 +22,6 @@
         IClient Remote { get; }
         IList<IClient> Clients { get; }
         string LocalHostName { get; }
-
-        event PeerWriteHandler OnWrite;
 
         /// <summary>
         /// Fires when we connect to a new client.
@@ -41,9 +38,17 @@
         /// </summary>
         event MessageHandler OnReceivedResponse;
 
+        /// <summary>
+        /// Run a local server via loopback.
+        /// </summary>
+        /// <returns></returns>
         bool SelfHost();
 
+        /// <summary>
+        /// Connect to given host and port.
+        /// </summary>
         bool Connect(string hostName, int port);
+        
         bool EnterClient(IClient client);
         bool Enter(int clientNumber);
         bool Execute(string pi);
@@ -54,16 +59,16 @@
         /// <summary>
         /// Make a new local Agent
         /// </summary>
-        TIAgent NewAgent<TIAgent>();
+        TAgent NewAgent<TAgent>();
 
         /// <summary>
         /// Make a local proxy to a remote Agent
         /// </summary>
-        IFuture<TIProxy> NewProxy<TIProxy>(Guid agentNetId);
+        IFuture<TProxy> NewProxy<TProxy>(Guid agentNetId);
 
-        IFuture<TR> RemoteCall<TR>(NetId agentId, string methodName);
-        IFuture<TR> RemoteCall<TR, T0>(NetId agentId, string methodName, T0 t0);
-        IFuture<TR> RemoteCall<TR, T0, T1>(NetId agentId, string methodName, T0 t0, T1 t1);
+        IFuture<Tr> RemoteCall<Tr>(NetId agentId, string methodName);
+        IFuture<Tr> RemoteCall<Tr, T0>(NetId agentId, string methodName, T0 t0);
+        IFuture<Tr> RemoteCall<Tr, T0, T1>(NetId agentId, string methodName, T0 t0, T1 t1);
     }
 }
 

@@ -1,6 +1,6 @@
 ﻿// ReSharper disable DelegateSubtraction
 
-namespace App.PyroConsole
+namespace App
 {
     using System;
     using System.IO;
@@ -19,6 +19,7 @@ namespace App.PyroConsole
     using Pyro.Network;
     using Pyro.RhoLang.Lexer;
     using Newtonsoft.Json;
+
 
     /// <summary>
     /// Interactive console supporting all Pyro languages.
@@ -132,7 +133,7 @@ namespace App.PyroConsole
             _peer = Pyro.Network.Create.NewPeer(ListenPort);
             //_peer.OnReceivedRequest += (server, client, text) => WriteConsole(ELogLevel.Verbose, text);
 
-            _peer.OnWrite += (t, c) => WriteConsole(ELogLevel.Info, t);
+            //_peer.OnWrite += (t, c) => WriteConsole(ELogLevel.Info, t);
             _peer.OnReceivedRequest += _peer_OnReceivedRequest;
             _peer.OnReceivedResponse += _peer_OnReceivedResponse;
             _peer.OnConnected += PeerOnOnConnected;
@@ -143,7 +144,7 @@ namespace App.PyroConsole
         private void PeerOnOnConnected(IPeer peer, IClient client)
         {
             //WriteConsole(ELogLevel.Info, $"Connected to {client}");
-            client.OnRecieved += Client_OnRecieved;
+            client.OnReceived += Client_OnRecieved;
         }
 
         private void Client_OnRecieved(IClient client, System.Net.Sockets.Socket server)
@@ -359,4 +360,5 @@ namespace App.PyroConsole
         }
     }
 }
+
 

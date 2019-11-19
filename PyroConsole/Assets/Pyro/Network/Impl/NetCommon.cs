@@ -3,7 +3,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-
+using Flow;
 using Pyro.Exec;
 using Context = Pyro.ExecutionContext.Context;
 using ELanguage = Pyro.Language.ELanguage;
@@ -27,6 +27,11 @@ namespace Pyro.Network.Impl
         protected IRegistry _Registry => _Context.Registry;
         protected bool _Stopping;
 
+        public IFuture<DateTime> Ping()
+        {
+            throw new NotImplementedException();
+        }
+        
         protected NetCommon(Peer peer)
         {
             _Peer = peer;
