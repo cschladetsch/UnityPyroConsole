@@ -25,12 +25,13 @@
         /// </summary>
         public GameObject Local;
         public string FullName;
+        public int UpdateMillis = 100;
 
         private ICoroutine _coro;
-        private int _nextNetworkId = 1;
+        private static int _nextNetworkId = 1;
 
         /// <summary>
-        /// Connect to a remote object.
+        /// Send updates to a remote client
         /// </summary>
         public void SetRemote(Pyro.Network.IClient remote)
         {
@@ -38,8 +39,9 @@
             {
                 while (true)
                 {
-                    self.ResumeAfter(TimeSpan.FromMilliseconds(100));
+                    self.ResumeAfter(TimeSpan.FromMilliseconds(UpdateMillis));
                     var p = transform.position;
+                    Debug.Log($"Updating {FullName}");
                     Remote?.Continue($"UpdateTransform({NetworkId}, {p.x}, {p.y}, {p.z})");
                 }
             }
@@ -70,6 +72,20 @@
             FullName = fullName;
             Local = GameObject.Find(fullName);
             NetworkId = id;
+        }
+
+        private void Update()
+        {
+            if (!Main.Instance.IsServer)
+                return;
+
+            Main.Instance.Peer.OnConnected += Peer_OnConnected;
+        }
+
+        private void Peer_OnConnected(Pyro.Network.IPeer peer, Pyro.Network.IClient client)
+        {
+            Main.Instance.Peer.OnConnected -= Peer_OnConnected;
+            SetRemote(client);
         }
 
         private void OnDestroy()

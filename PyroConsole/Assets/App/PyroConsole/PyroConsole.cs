@@ -44,6 +44,8 @@ namespace App
         public TextAsset RhoTheme;
         public TextAsset[] StartupScripts;
         public GameObject Visual;
+        
+        public IPeer Peer => _peer;
 
         private bool _booted;
         private Stack<object> _data => _pyro.Executor.DataStack;
@@ -143,7 +145,7 @@ namespace App
 
         private void PeerOnOnConnected(IPeer peer, IClient client)
         {
-            //WriteConsole(ELogLevel.Info, $"Connected to {client}");
+            WriteConsole(ELogLevel.Info, $"Connected to {client}");
             client.OnReceived += Client_OnRecieved;
         }
 
@@ -161,7 +163,7 @@ namespace App
 
         private void _peer_OnReceivedResponse(IClient client, string text)
         {
-            //WriteConsole(ELogLevel.Warn, $"Response: {server} {client}: {text}");
+            WriteConsole(ELogLevel.Warn, $"Response: {client}: {text}");
             _needRefresh = true;
         }
 
@@ -347,11 +349,12 @@ namespace App
         public string LocalDataStackToString(int max = 50)
         {
             var sb = new StringBuilder();
-            var n = 0;
-            var results = _peer.Remote.Results();
-            foreach (var result in results.ToList())
+            var results = _peer.Remote.Context.Executor.DataStack;
+            var n = results.Count - 1;
+            foreach (var result in results)
             {
-                sb.AppendLine($"<color=#a0a0a0>{n++:D2}</color> {result}");
+                var text = _peer.Remote.Context.Registry.ToPiScript(result);
+                sb.AppendLine($"<color=#a0a0a0>{n--:D2}</color> {text}");
                 if (n > max)
                     break;
             }
