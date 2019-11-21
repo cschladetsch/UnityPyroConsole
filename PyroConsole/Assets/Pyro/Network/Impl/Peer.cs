@@ -173,6 +173,7 @@ namespace Pyro.Network.Impl
                 return Fail("Client not connected");
 
             _remote = client;
+            OnConnected?.Invoke(this, client);
             return true;
         }
 

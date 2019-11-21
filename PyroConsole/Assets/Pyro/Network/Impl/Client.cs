@@ -15,14 +15,19 @@
     /// </summary>
     public class Client
         : NetCommon
-        , IClient
+            , IClient
     {
         public event ClientReceivedHandler OnReceived;
 
         // TODO: Move to NetCommon
         public string HostName => GetHostName();
         public int HostPort => GetHostPort();
-        public override Socket Socket { get => _socket; set => _socket = value; }
+
+        public override Socket Socket
+        {
+            get => _socket;
+            set => _socket = value;
+        }
 
         private Socket _socket;
         private IList<string> _results = new List<string>();
@@ -44,7 +49,7 @@
             => _socket = socket;
 
         //public bool Continue(Continuation cont)
-            //=> Send(cont?.ToText());
+        //=> Send(cont?.ToText());
 
         public bool Continue(string script)
         {
@@ -78,7 +83,7 @@
         {
             try
             {
-                _socket = (Socket)ar.AsyncState;
+                _socket = (Socket) ar.AsyncState;
                 _socket.EndConnect(ar);
                 if (!_socket.Connected)
                 {
@@ -100,6 +105,11 @@
         {
             // hacks
             Send(" ");
+        }
+
+        public bool ContinueRho(string rhoScript)
+        {
+            return _Context.ExecRho(rhoScript) || Error($"Failed to translate {rhoScript}");
         }
 
         protected override bool ProcessReceived(Socket sender, string pi)

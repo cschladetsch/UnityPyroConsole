@@ -23,7 +23,8 @@ namespace Pyro.Network
 
         IEnumerable<string> Results();
         void GetLatest();
-        bool Continue(string script);
+        bool Continue(string piScript);
+        bool ContinueRho(string rhoScript);
         void Close();
     }
 }
