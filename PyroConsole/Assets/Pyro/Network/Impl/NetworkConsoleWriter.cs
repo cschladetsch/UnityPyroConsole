@@ -50,7 +50,7 @@ namespace Pyro.Network.Impl
 
             var color = Con.ForegroundColor;
             Con.ForegroundColor = ConsoleColor.Cyan;
-            Con.WriteLine();
+            //Con.WriteLine();
             Con.WriteLine(text);
             Con.ForegroundColor = color;
             return true;

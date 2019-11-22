@@ -8,7 +8,7 @@ using Flow;
 
 namespace Pyro.Network.Impl
 {
-    using Exec;
+    using System.Text;
 
     /// <inheritdoc cref="IPeer" />
     /// <summary>
@@ -86,7 +86,7 @@ namespace Pyro.Network.Impl
         public IClient GetClient(Socket sender)
             => _clients.FirstOrDefault(c => c.Socket == sender);
 
-        public string GetHostName()
+        private string GetHostName()
             => GetRemoteEndPoint()?.Address.ToString();
 
         public bool SelfHost()
@@ -101,7 +101,7 @@ namespace Pyro.Network.Impl
         private int GetHostPort()
             => GetRemoteEndPoint()?.Port ?? 0;
 
-        public bool EnterRemote(IClient client)
+        private bool EnterRemote(IClient client)
         {
             if (client.Socket == null)
                 return false;
@@ -119,7 +119,7 @@ namespace Pyro.Network.Impl
         /// </summary>
         /// <param name="port">The port to connect to.</param>
         /// <returns>True if connection made,</returns>
-        public bool SelfHost(int port)
+        private bool SelfHost(int port)
         {
             if (!Connect(GetLocalHostname(), port))
                 return Error("Couldn't connect to localhost");
@@ -147,11 +147,9 @@ namespace Pyro.Network.Impl
                 Error("Cannot leave self");
                 return;
             }
-
-            _remote.Close();
-            _clients.Remove(_remote);
-
-            _remote = _clients[0];  // self-host
+            
+            // Go back to self-hosting.
+            _remote = _clients[0];
         }
 
         public bool Connect(string hostName, int port)
@@ -163,6 +161,29 @@ namespace Pyro.Network.Impl
             _clients.Add(client);
             return true;
         }
+
+        public bool ShowStack(int i)
+        {
+            if (i >= _clients.Count)
+                return Error("Invalid client number.");
+            var client = _clients[i];
+            
+            // TODO: this is copied from Console.Program.cs
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            var str = new StringBuilder();
+            // make a copy as it could be changed by another call while we're iterating over data stack
+            var results = client.Context.Executor.DataStack.ToList();
+            var reg = client.Context.Registry;
+            var n = results.Count - 1;
+            foreach (var result in results)
+                str.AppendLine($"{n--}: {reg.ToPiScript(result)}");
+
+            Console.Write(str.ToString());
+            return true;
+        }
+        
+        public bool To(int n, string piScript)
+            => n >= _clients.Count ? Error("Invalid client number.") : _clients[n].Continue(piScript);
 
         public bool EnterClient(IClient client)
         {
@@ -213,13 +234,20 @@ namespace Pyro.Network.Impl
             throw new NotImplementedException();
         }
 
+        public void SwitchClient(int n)
+        {
+            if (n >= _clients.Count)
+            {
+                Error($"Invalid client number {n}");
+                return;
+            }
+            
+            _remote = _clients[n];
+        }
+
         public IFuture<TR> RemoteCall<TR, T0, T1>(NetId agentId, string methodName, T0 t0, T1 t1)
         {
             throw new NotImplementedException();
-        }
-
-        public void Update()
-        {
         }
 
         public void NewConnection(Socket socket)
@@ -236,6 +264,18 @@ namespace Pyro.Network.Impl
             var address = Dns.GetHostAddresses(Dns.GetHostName()).FirstOrDefault(a => a.AddressFamily == AddressFamily.InterNetwork);
             return address?.ToString() ?? "localhost";
         }
+
+        public void ShowEndPoints()
+        {
+            foreach (var client in _clients)
+                WriteLine($"{client.Socket.LocalEndPoint} -> {client.Socket.RemoteEndPoint}");
+        }
+        
+        public void NewServerConnection(Socket socket)
+        {
+            //WriteLine($"NewServerConn: {socket.RemoteEndPoint}");
+            var client = new Client(this) { Socket = socket};
+            _clients.Add(client);
+        }
     }
 }
-

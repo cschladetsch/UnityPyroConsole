@@ -122,10 +122,6 @@
                 cont.Scope = _Exec.Scope;
                 _Exec.Continue(cont);
 
-                _results.Clear();
-                foreach (var elem in _Exec.DataStack)
-                    _results.Add(_Context.Registry.ToPiScript(elem));
-
                 OnReceived?.Invoke(this, sender);
             }
             catch (Exception e)

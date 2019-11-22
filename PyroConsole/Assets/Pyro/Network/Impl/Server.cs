@@ -41,17 +41,17 @@ namespace Pyro.Network.Impl
             scope["peer"] = _Peer;
             scope["server"] = this;
             // work
-            scope["connect"] = TranslateRho("peer.Connect(\"192.168.3.146\", 9999)");
+            //scope["connect"] = TranslateRho("peer.Connect(\"192.168.3.146\", 9999)");
             
             // home
-            //scope["connect"] = TranslateRho("peer.Connect(9999, \"192.168.171.1\")");
+            scope["connect"] = TranslateRho("peer.Connect(\"192.168.171.1\", 9999)");
             scope["enter"] = TranslateRho("peer.Enter(2)");
             scope["join"] = TranslateRho("assert(connect() && enter())");
             scope["leave"] = TranslateRho("peer.Leave()");
             _Context.Language = Language.ELanguage.Pi;
         }
 
-        private Exec.Continuation TranslateRho(string text)
+        private Continuation TranslateRho(string text)
         {
             if (!_Context.Translate(text, out var cont))
             {
@@ -64,7 +64,7 @@ namespace Pyro.Network.Impl
 
         public override string ToString()
         {
-            return $"Server: listening on {ListenPort}, connected={_listener?.Connected}";
+            return $"Server: listening on {ListenPort}";
         }
 
         public bool Start()
@@ -156,7 +156,7 @@ namespace Pyro.Network.Impl
 
             var socket = _listener.EndAccept(ar);
             WriteLine($"Serving {socket.RemoteEndPoint}");
-            _Peer.NewConnection(socket);
+            _Peer.NewServerConnection(socket);
             Receive(socket);
             Listen();
         }

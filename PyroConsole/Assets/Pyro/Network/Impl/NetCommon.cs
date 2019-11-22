@@ -60,6 +60,7 @@ namespace Pyro.Network.Impl
 
             var byteData = Encoding.ASCII.GetBytes(text + '~');
             socket.BeginSend(byteData, 0, byteData.Length, 0, Sent, socket);
+            
             return true;
         }
 
@@ -75,8 +76,9 @@ namespace Pyro.Network.Impl
             return Dns.GetHostAddresses(hostname).FirstOrDefault(a => a.AddressFamily == AddressFamily.InterNetwork);
         }
 
-        protected void Receive(Socket socket)
+        public void Receive(Socket socket)
         {
+            //WriteLine($"NetCommon.Receive: {socket.RemoteEndPoint}");
             var state = new StateObject {workSocket = socket};
             socket.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, ReadCallback, state);
         }
@@ -119,6 +121,7 @@ namespace Pyro.Network.Impl
             var socket = state.workSocket;
 
             var bytesRead = socket.EndReceive(ar);
+            //WriteLine($"NetCommon: Process Read: {bytesRead}");
             if (bytesRead <= 0)
                 return;
 
@@ -135,6 +138,7 @@ namespace Pyro.Network.Impl
         private void ProcessInput(StateObject state, Socket socket)
         {
             var content = state.sb.ToString();
+//            WriteLine($"ProcessInput: {content}");
             var end = content.IndexOf('~'); // yes. this means we can't use tilde anywhere in scripts!
             if (end < 0)
                 return;
