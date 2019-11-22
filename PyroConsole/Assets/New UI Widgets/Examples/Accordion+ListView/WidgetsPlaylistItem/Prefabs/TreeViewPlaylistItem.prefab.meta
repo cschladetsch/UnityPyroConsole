@@ -1,6 +1,9 @@
 fileFormatVersion: 2
-guid: cac5e6711ae958f469b9cd4b7f8db19f
+guid: ac75200c00adc6e41996ba36a6d9abd6
 labels:
 - UiwidgetsGeneratedTreeViewPlaylistItemPrefab
-NativeFormatImporter:
+PrefabImporter:
+  externalObjects: {}
   userData: 
+  assetBundleName: 
+  assetBundleVariant: 

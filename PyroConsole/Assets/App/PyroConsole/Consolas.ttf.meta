@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 2099d6c4a6044024182784ae9bc01601
+guid: bfebaa5ab94da594599e977a04bc640a
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -11,7 +11,8 @@ TrueTypeFontImporter:
   fontName: Consolas
   fontNames:
   - Consolas
-  fallbackFontReferences: []
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: 2099d6c4a6044024182784ae9bc01601, type: 3}
   customCharacters: 
   fontRenderingMode: 0
   ascentCalculationMode: 1
