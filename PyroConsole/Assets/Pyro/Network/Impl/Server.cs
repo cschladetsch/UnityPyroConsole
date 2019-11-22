@@ -41,10 +41,10 @@ namespace Pyro.Network.Impl
             scope["peer"] = _Peer;
             scope["server"] = this;
             // work
-            //scope["connect"] = TranslateRho("peer.Connect(\"192.168.3.146\", 9999)");
+            scope["connect"] = TranslateRho("peer.Connect(\"192.168.3.146\", 9999)");
             
             // home
-            scope["connect"] = TranslateRho("peer.Connect(9999, \"192.168.171.1\")");
+            //scope["connect"] = TranslateRho("peer.Connect(9999, \"192.168.171.1\")");
             scope["enter"] = TranslateRho("peer.Enter(2)");
             scope["join"] = TranslateRho("assert(connect() && enter())");
             scope["leave"] = TranslateRho("peer.Leave()");
