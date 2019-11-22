@@ -38,13 +38,15 @@ namespace App
         /// </summary>
         private void SetRemote(IClient remote)
         {
+            //remote = Main.Instance.Peer.Clients[2];
+
             IEnumerator SendUpdate(IGenerator self)
             {
                 while (true)
                 {
                     yield return self.ResumeAfter(TimeSpan.FromMilliseconds(UpdateMillis));
                     var p = transform.position;
-                    Debug.Log($"Updating {FullName}");
+                    Debug.Log($"Updating {FullName} -> {Remote.Socket.RemoteEndPoint}");
                     Remote?.ContinueRho($"remote.UpdateTransform({NetworkId}, {p.x}, {p.y}, {p.z})");
                 }
             }
@@ -56,6 +58,7 @@ namespace App
             Remote = remote;
             NetworkId = _nextNetworkId++;
             FullName = Utility.GetFullName(this);
+            Debug.Log($"Adding Remote {FullName} to {remote.Socket.RemoteEndPoint}");
             remote.ContinueRho($"remote.AddRemote({FullName}, {NetworkId})");
         }
 
@@ -98,9 +101,18 @@ namespace App
         private bool _hooked;
         private bool _connect;
         private IClient _client;
+        private int _connectNumber;
 
         private void Peer_OnConnected(IPeer peer, IClient client)
         {
+            /*
+            if (_connectNumber++ == 0)
+            {
+                Debug.Log($"Ignoring first client (loopback)");
+                return;
+            }
+            */
+
             Main.Instance.Peer.OnConnected -= Peer_OnConnected;
             _connect = true;
             _client = client;
@@ -108,7 +120,7 @@ namespace App
 
         private void OnDestroy()
         {
-            Remote?.Continue($"DestroyObject({NetworkId})");
+            Remote?.Continue($"remote.DestroyObject({NetworkId})");
             _coro?.Complete();
         }
     }

@@ -485,7 +485,7 @@ MonoBehaviour:
   NetworkId: 1
   Local: {fileID: 0}
   FullName: 
-  UpdateMillis: 100
+  UpdateMillis: 2000
 --- !u!1 &745128798
 GameObject:
   m_ObjectHideFlags: 0
@@ -904,6 +904,40 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Pivot.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5898103564560925135, guid: d3592fc0627bfd548987e1820881c2d0,
+        type: 3}
+      propertyPath: m_text
+      value: 'peer.Clients[2].Continue("{42"})
+
+        peer.Clients[2].Socket.RemoteEndPoint
+
+'
+      objectReference: {fileID: 0}
+    - target: {fileID: 5898103564560925135, guid: d3592fc0627bfd548987e1820881c2d0,
+        type: 3}
+      propertyPath: m_textInfo.characterCount
+      value: 71
+      objectReference: {fileID: 0}
+    - target: {fileID: 5898103564560925135, guid: d3592fc0627bfd548987e1820881c2d0,
+        type: 3}
+      propertyPath: m_textInfo.wordCount
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 5898103564560925135, guid: d3592fc0627bfd548987e1820881c2d0,
+        type: 3}
+      propertyPath: m_textInfo.lineCount
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5898103564560925135, guid: d3592fc0627bfd548987e1820881c2d0,
+        type: 3}
+      propertyPath: m_textInfo.pageCount
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5898103564560925135, guid: d3592fc0627bfd548987e1820881c2d0,
+        type: 3}
+      propertyPath: m_textInfo.spaceCount
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7792978911866838904, guid: d3592fc0627bfd548987e1820881c2d0,
         type: 3}

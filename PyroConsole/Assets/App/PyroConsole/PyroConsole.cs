@@ -122,6 +122,9 @@ namespace App
 
             StartPeer();
             //_peer.Execute("1 2 3");
+
+            _pyro.Scope["main"] = Main.Instance;
+            _pyro.Scope["peer"] = Main.Instance.Peer;
         }
 
         protected void Shutdown()
