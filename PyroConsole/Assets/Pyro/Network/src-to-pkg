@@ -1,0 +1,5 @@
+#!/bin/sh
+
+cp *.cs /$WORK_LETTER/Packages/Pyro/Library/Network
+cp Impl/*.cs /$WORK_LETTER/Packages/Pyro/Library/Network/Impl
+
