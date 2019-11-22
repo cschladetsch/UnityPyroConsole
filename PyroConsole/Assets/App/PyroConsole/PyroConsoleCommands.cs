@@ -1,4 +1,4 @@
-﻿namespace App.PyroConsole
+﻿namespace App
 {
     using System;
     using System.IO;

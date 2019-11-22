@@ -1,15 +1,17 @@
 ﻿// ReSharper disable DelegateSubtraction
 
-namespace App.PyroConsole
+using System.Linq;
+
+namespace App
 {
     using System;
     using System.IO;
     using System.Text;
-    using System.Linq;
     using System.Collections.Generic;
     using UnityEngine;
     using UnityEngine.UI;
     using UnityEditor;
+    using Newtonsoft.Json;
     using TMPro;
     using UniRx;
     using Flow;
@@ -18,10 +20,11 @@ namespace App.PyroConsole
     using Pyro.Language;
     using Pyro.Network;
     using Pyro.RhoLang.Lexer;
-    using Newtonsoft.Json;
 
     /// <summary>
     /// Interactive console supporting all Pyro languages.
+    ///
+    /// Can be remotely accessed, and can remotely access other Pyro Peers.
     /// </summary>
     public partial class PyroConsole
         : MonoBehaviour
@@ -42,21 +45,23 @@ namespace App.PyroConsole
         public Color[] Colors;
         public TextAsset RhoTheme;
         public TextAsset[] StartupScripts;
+        public GameObject Visual;
+        
+        public IPeer Peer => _peer;
 
         private bool _booted;
         private Stack<object> _data => _pyro.Executor.DataStack;
         private List<Continuation> _context => _pyro.Executor.ContextStack;
         private readonly Context _pyro = new Context { Language = ELanguage.Rho };
         private readonly IReactiveProperty<bool> _active = new ReactiveProperty<bool>(false);
-        private string _scriptPath => Path.Combine(Application.dataPath, "Pyro/Scripts");
-        private string _rc => Path.Combine(Application.persistentDataPath, "Pyro.rc").Replace('\\', '/');
-        private string _lastPi => Path.Combine(Application.persistentDataPath, "Last.pi").Replace('\\', '/');
-        private string _lastRho => Path.Combine(Application.persistentDataPath, "Last.rho").Replace('\\', '/');
+        private readonly IReactiveProperty<float> _fontSize = new ReactiveProperty<float>(36);
+        private static string _scriptPath => Path.Combine(Application.dataPath, "Pyro/Scripts");
+        private static string _rc => Path.Combine(Application.persistentDataPath, "Pyro.rc").Replace('\\', '/');
+        private static string _lastPi => Path.Combine(Application.persistentDataPath, "Last.pi").Replace('\\', '/');
+        private static string _lastRho => Path.Combine(Application.persistentDataPath, "Last.rho").Replace('\\', '/');
         private ColoriseRho _colorise => _coloriseRho; // TODO: Pi coloring
         private ColoriseRho _coloriseRho;
         private readonly ColoriseRho _colorisePi;
-        private readonly IReactiveProperty<float> _fontSize = new ReactiveProperty<float>(36);
-
         private IPeer _peer;
         private string HostName => _peer?.Remote?.HostName ?? "local";
         private int HostPort => _peer?.Remote?.HostPort ?? 0;
@@ -117,6 +122,9 @@ namespace App.PyroConsole
 
             StartPeer();
             //_peer.Execute("1 2 3");
+
+            _pyro.Scope["main"] = Main.Instance;
+            _pyro.Scope["peer"] = Main.Instance.Peer;
         }
 
         protected void Shutdown()
@@ -129,38 +137,52 @@ namespace App.PyroConsole
         private bool StartPeer()
         {
             _peer = Pyro.Network.Create.NewPeer(ListenPort);
-            //_peer.OnReceivedRequest += (server, client, text) => WriteConsole(ELogLevel.Verbose, text);
 
-            _peer.OnWrite += (t, c) => WriteConsole(ELogLevel.Info, t);
-            //_peer.OnReceivedRequest += _peer_OnReceivedRequest;
+            // NOTE: All these will be invoked from a different thread!
+            // NOTE: As such, do NOT do any work on Unity objects or with unity itself, other than Debug.Log etc.
+            //_peer.OnWrite += (t, c) => WriteConsole(ELogLevel.Info, t);
+            _peer.OnReceivedRequest += _peer_OnReceivedRequest;
             _peer.OnReceivedResponse += _peer_OnReceivedResponse;
+            _peer.OnConnected += PeerOnOnConnected;
 
             return _peer.SelfHost() || Error("Failed to start local server");
+        }
+
+        private void PeerOnOnConnected(IPeer peer, IClient client)
+        {
+            Debug.Log($"Connected to {client}");
+            client.OnReceived += Client_OnReceived;
+        }
+
+        private void Client_OnReceived(IClient client, System.Net.Sockets.Socket server)
+        {
+            _needRefresh = true;
         }
 
         private void OnEnable()
         {
             PiInput.OnSubmitLine += Exec;
             RhoInput.OnSubmitLine += Exec;
-
         }
 
         private void _peer_OnReceivedResponse(IClient client, string text)
         {
-            //WriteConsole(ELogLevel.Warn, $"Response: {server} {client}: {text}");
+            WriteConsole(ELogLevel.Warn, $"Response: {client}: {text}");
             _needRefresh = true;
         }
 
-        bool _needRefresh;
+        private bool _needRefresh;
 
-        private void _peer_OnReceivedRequest(IServer server, IClient client, string text)
+        private void _peer_OnReceivedRequest(IClient client, string text)
         {
-            WriteConsole(ELogLevel.Warn, $"Request: {server} {client}: {text}");
+            Debug.Log($"Received {text}");
+            _needRefresh = true;
         }
 
         public void Refresh()
         {
-            WriteStack();
+            _peer.Remote.GetLatest();
+            _needRefresh = true;
         }
 
         private void OnDisable()
@@ -171,7 +193,7 @@ namespace App.PyroConsole
             Shutdown();
         }
 
-        void Exec(string text)
+        private void Exec(string text)
         {
             Execute(text);
         }
@@ -179,10 +201,14 @@ namespace App.PyroConsole
         private void Update()
         {
             if (_needRefresh)
-                Refresh();
+                WriteStack();
 
             if (Input.GetKeyDown(KeyCode.F1))
+            {
                 _active.Value = !_active.Value;
+                Visual.SetActive(!Visual.activeSelf);
+                return;
+            }
 
             if (_input.NeedUpdate)
             {
@@ -278,7 +304,7 @@ namespace App.PyroConsole
                 if (!_pyro.Translate(input, out var cont))
                     return Error(_pyro.Error);
 
-                if (!_peer.Execute(cont))
+                if (!_peer.Execute(cont.ToText()))
                     return Error(_peer.Error);
             }
             catch (Exception e)
@@ -320,18 +346,19 @@ namespace App.PyroConsole
         private bool WriteStack()
         {
             Output.text = LocalDataStackToString();
+            _needRefresh = false;
             return true;
         }
 
-        public string LocalDataStackToString(int max = 50)
+        private string LocalDataStackToString(int max = 50)
         {
             var sb = new StringBuilder();
-            var n = 0;
-            var client = _peer.Remote;
-            var results = client.Results();
-            foreach (var result in results.ToList())
+            var results = _peer.Remote.Context.Executor.DataStack.Reverse().ToList();
+            var n = results.Count - 1;
+            foreach (var result in results)
             {
-                sb.AppendLine($"<color=#a0a0a0>{n++:D2}</color> {_pyro.Registry.ToPiScript(result)}");
+                var text = _peer.Remote.Context.Registry.ToPiScript(result);
+                sb.AppendLine($"<color=#a0a0a0>{n--:D2}</color> {text}");
                 if (n > max)
                     break;
             }
@@ -340,4 +367,5 @@ namespace App.PyroConsole
         }
     }
 }
+
 
