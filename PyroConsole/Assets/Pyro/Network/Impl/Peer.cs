@@ -1,14 +1,12 @@
-﻿using System;
-using System.Net;
-using System.Linq;
-using System.Net.Sockets;
-using System.Collections.Generic;
-
-using Flow;
-
-namespace Pyro.Network.Impl
+﻿namespace Pyro.Network.Impl
 {
+    using System;
+    using System.Net;
     using System.Text;
+    using System.Linq;
+    using System.Net.Sockets;
+    using System.Collections.Generic;
+    using Flow;
 
     /// <inheritdoc cref="IPeer" />
     /// <summary>
@@ -71,14 +69,11 @@ namespace Pyro.Network.Impl
                 .Class);
         }
 
-        public void StartServer(int listenPort)
-        {
-            _server = new Server(this, listenPort);
-            _server.ReceivedRequest += (client, text) => 
-            {
-                OnReceivedRequest?.Invoke(client, text);
-            };
-        }
+        public bool SelfHost()
+            => !_server.Start() ? Fail("Couldn't start server") : SelfHost(_server.ListenPort);
+
+        public bool Enter(int index)
+            => index >= _clients.Count ? Fail($"No such client id={index}") : EnterRemote(_clients[index]);
 
         public bool Execute(string script)
             => _remote?.Continue(script) ?? Fail("Not connected");
@@ -86,59 +81,11 @@ namespace Pyro.Network.Impl
         public IClient GetClient(Socket sender)
             => _clients.FirstOrDefault(c => c.Socket == sender);
 
-        private string GetHostName()
-            => GetRemoteEndPoint()?.Address.ToString();
-
-        public bool SelfHost()
-            => !_server.Start() ? Fail("Couldn't start server") : SelfHost(_server.ListenPort);
-
-        public bool Enter(int index)
-            => index >= _clients.Count ? Fail($"No such client id={index}") : EnterRemote(_clients[index]);
-
-        private IPEndPoint GetRemoteEndPoint()
-            => Remote?.Socket?.RemoteEndPoint as IPEndPoint;
-
-        private int GetHostPort()
-            => GetRemoteEndPoint()?.Port ?? 0;
-
-        private bool EnterRemote(IClient client)
-        {
-            if (client.Socket == null)
-                return false;
-
-            WriteLine($"Remoting into {client.Socket.RemoteEndPoint}");
-            if (!_clients.Contains(client))
-                return false;
-
-            _remote = client;
-            return true;
-        }
-
-        /// <summary>
-        /// Connect to local loopback address.
-        /// </summary>
-        /// <param name="port">The port to connect to.</param>
-        /// <returns>True if connection made,</returns>
-        private bool SelfHost(int port)
-        {
-            if (!Connect(GetLocalHostname(), port))
-                return Error("Couldn't connect to localhost");
-
-            // This Sleep is to give a little time for local
-            // client to connect to local server via loopback Tcp.
-            System.Threading.Thread.Sleep(TimeSpan.FromMilliseconds(250));
-
-            return EnterClient(Clients[0]) || Error("Couldn't shell to localhost");
-        }
-
         public bool Listen()
             =>  _server.Start();
 
         public void Received(Socket socket, string text)
             => OnReceivedResponse?.Invoke(FindClient(socket), text);
-
-        private IClient FindClient(Socket socket)
-            => _clients.FirstOrDefault(c => c.Socket == socket);
 
         public void Leave()
         {
@@ -259,7 +206,7 @@ namespace Pyro.Network.Impl
             WriteLine($"Connected to {socket.RemoteEndPoint}");
         }
 
-        public string GetLocalHostname()
+        private static string GetLocalHostname()
         {
             var address = Dns.GetHostAddresses(Dns.GetHostName()).FirstOrDefault(a => a.AddressFamily == AddressFamily.InterNetwork);
             return address?.ToString() ?? "localhost";
@@ -277,5 +224,55 @@ namespace Pyro.Network.Impl
             var client = new Client(this) { Socket = socket};
             _clients.Add(client);
         }
+        private void StartServer(int listenPort)
+        {
+            _server = new Server(this, listenPort);
+            _server.ReceivedRequest += (client, text) => 
+            {
+                OnReceivedRequest?.Invoke(client, text);
+            };
+        }
+
+        private string GetHostName()
+            => GetRemoteEndPoint()?.Address.ToString();
+
+        private IPEndPoint GetRemoteEndPoint()
+            => Remote?.Socket?.RemoteEndPoint as IPEndPoint;
+
+        private int GetHostPort()
+            => GetRemoteEndPoint()?.Port ?? 0;
+
+        private bool EnterRemote(IClient client)
+        {
+            if (client.Socket == null)
+                return false;
+
+            WriteLine($"Remoting into {client.Socket.RemoteEndPoint}");
+            if (!_clients.Contains(client))
+                return false;
+
+            _remote = client;
+            return true;
+        }
+
+        /// <summary>
+        /// Connect to local loopback address.
+        /// </summary>
+        /// <param name="port">The port to connect to.</param>
+        /// <returns>True if connection made,</returns>
+        private bool SelfHost(int port)
+        {
+            if (!Connect(GetLocalHostname(), port))
+                return Error("Couldn't connect to localhost");
+
+            // This Sleep is to give a little time for local
+            // client to connect to local server via loopback Tcp.
+            System.Threading.Thread.Sleep(TimeSpan.FromMilliseconds(250));
+
+            return EnterClient(Clients[0]) || Error("Couldn't shell to localhost");
+        }
+
+        private IClient FindClient(Socket socket)
+            => _clients.FirstOrDefault(c => c.Socket == socket);
     }
 }

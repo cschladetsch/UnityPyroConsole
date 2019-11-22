@@ -35,7 +35,7 @@ namespace Pyro.Network.Impl
 
             _port = port;
 
-            var scope = _Exec.Scope;
+            var scope = Exec.Scope;
 
             _Context.Language = Language.ELanguage.Rho;
             scope["peer"] = _Peer;
@@ -108,13 +108,13 @@ namespace Pyro.Network.Impl
                     return false;
 
                 // clear remote stack, send the datastack back as a list, then expand it to the remote stack, and drop the number of items that 'expand' adds to the stack
-                var stack = "clear " + _Registry.ToPiScript(_Exec.DataStack.ToList()) + " expand drop";
+                var stack = "clear " + _Registry.ToPiScript(Exec.DataStack.ToList()) + " expand drop";
                 return Send(sender, stack);
             }
             catch (Exception e)
             {
                 var msg = $"{e.Message} {e.InnerException?.Message}";
-                _Exec.Push($"Error: {msg}");
+                Exec.Push($"Error: {msg}");
                 return Error(msg);
             }
             finally
@@ -127,7 +127,7 @@ namespace Pyro.Network.Impl
         {
             if (!_Context.Translate(pi, out var cont))
             {
-                _Exec.Push(_Context.Error);
+                Exec.Push(_Context.Error);
                 return Error(_Context.Error);
             }
 
@@ -138,8 +138,8 @@ namespace Pyro.Network.Impl
             if (cont == null)
                 return Error("Server.RunLocally: Continuation expected");
             
-            cont.Scope = _Exec.Scope;
-            _Exec.Continue(cont);
+            cont.Scope = Exec.Scope;
+            Exec.Continue(cont);
 
             return true;
         }

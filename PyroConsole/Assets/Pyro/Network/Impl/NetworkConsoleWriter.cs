@@ -1,9 +1,9 @@
-﻿using Flow;
-using System;
-using Con = System.Console;
-
-namespace Pyro.Network.Impl
+﻿namespace Pyro.Network.Impl
 {
+    using Flow;
+    using System;
+    using Con = System.Console;
+
     /// <inheritdoc />
     /// <summary>
     /// Base for Peer, Client and Server.
@@ -41,7 +41,7 @@ namespace Pyro.Network.Impl
             OnWrite?.Invoke(log, text);
             WriteLine($"{log}: {text}");
             var failed = log != ELogLevel.Error;
-            return failed ? Fail(text) : true;
+            return !failed || Fail(text);
         }
 
         protected bool WriteLine(string text)

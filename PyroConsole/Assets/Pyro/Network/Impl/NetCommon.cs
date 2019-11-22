@@ -1,15 +1,15 @@
-﻿using System;
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
-using Flow;
-using Pyro.Exec;
-using Context = Pyro.ExecutionContext.Context;
-using ELanguage = Pyro.Language.ELanguage;
-
-namespace Pyro.Network.Impl
+﻿namespace Pyro.Network.Impl
 {
+    using System;
+    using System.Linq;
+    using System.Net;
+    using System.Net.Sockets;
+    using System.Text;
+    using Flow;
+    using Exec;
+    using Context = ExecutionContext.Context;
+    using ELanguage = Language.ELanguage;
+
     /// <summary>
     /// Functionality common to both Client and Server aspects of a Peer
     /// </summary>
@@ -21,22 +21,22 @@ namespace Pyro.Network.Impl
         public Context Context => _Context;
         public abstract Socket Socket { get; set; }
 
-        protected Peer _Peer;
-        protected Context _Context;
-        protected Executor _Exec => _Context.Executor;
+        protected readonly Peer _Peer;
+        protected readonly Context _Context;
+        protected Executor Exec => _Context.Executor;
         protected IRegistry _Registry => _Context.Registry;
         protected bool _Stopping;
 
-        public IFuture<DateTime> Ping()
-        {
-            throw new NotImplementedException();
-        }
-        
         protected NetCommon(Peer peer)
         {
             _Peer = peer;
             _Context = new Context {Language = ELanguage.Pi};
             RegisterTypes.Register(_Context.Registry);
+        }
+
+        public IFuture<DateTime> Ping()
+        {
+            throw new NotImplementedException();
         }
 
         protected Continuation TranslatePi(string pi)
@@ -49,9 +49,7 @@ namespace Pyro.Network.Impl
         }
 
         protected bool Send(string text)
-        {
-            return Send(Socket, text);
-        }
+            => Send(Socket, text);
 
         protected bool Send(Socket socket, string text)
         {
@@ -64,19 +62,13 @@ namespace Pyro.Network.Impl
             return true;
         }
 
-        private static void Sent(IAsyncResult ar)
-        {
-            var socket = ar.AsyncState as Socket;
-            int? sent = socket?.EndSend(ar);
-        }
-
-        protected IPAddress GetAddress(string hostname)
+        protected static IPAddress GetAddress(string hostname)
         {
             // TODO: search for Ip6 address first
             return Dns.GetHostAddresses(hostname).FirstOrDefault(a => a.AddressFamily == AddressFamily.InterNetwork);
         }
 
-        public void Receive(Socket socket)
+        protected void Receive(Socket socket)
         {
             //WriteLine($"NetCommon.Receive: {socket.RemoteEndPoint}");
             var state = new StateObject {workSocket = socket};
@@ -98,7 +90,7 @@ namespace Pyro.Network.Impl
             return null;
         }
 
-        protected void ReadCallback(IAsyncResult ar)
+        private void ReadCallback(IAsyncResult ar)
         {
             try
             {
@@ -159,6 +151,12 @@ namespace Pyro.Network.Impl
         {
             state.sb.Clear();
             state.sb.Append(content.Substring(end + 1));
+        }
+        
+        private static void Sent(IAsyncResult ar)
+        {
+            var socket = ar.AsyncState as Socket;
+            socket?.EndSend(ar);
         }
     }
 }
