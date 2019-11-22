@@ -1,8 +1,8 @@
 {
   "dependencies": {
-    "com.cschladetsch.colib": "file:C:/Users/chris/work/Packages/colib",
-    "com.cschladetsch.flow": "file:C:/Users/chris/work/Packages/Flow",
-    "com.neuecc.unirx": "file:C:/Users/chris/work/Packages/UniRx",
+    "com.cschladetsch.colib": "file:s:/Packages/colib",
+    "com.cschladetsch.flow": "file:s:/Packages/Flow",
+    "com.neuecc.unirx": "file:s:/Packages/UniRx",
     "com.unity.analytics": "3.3.2",
     "com.unity.package-manager-ui": "2.1.2",
     "com.unity.textmeshpro": "2.0.1",
