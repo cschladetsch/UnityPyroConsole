@@ -1,9 +1,8 @@
-﻿using System;
-using Flow;
-
-namespace Pyro.Network
+﻿namespace Pyro.Network
 {
+    using System;
     using System.Net.Sockets;
+    using Flow;
     using ExecutionContext;
 
     /// <summary>

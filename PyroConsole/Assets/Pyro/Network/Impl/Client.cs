@@ -15,7 +15,7 @@
     /// </summary>
     public class Client
         : NetCommon
-            , IClient
+        , IClient
     {
         public event ClientReceivedHandler OnReceived;
 
@@ -40,11 +40,6 @@
         public override string ToString()
             => $"Client: connected to {HostName}:{HostPort}";
 
-        public IEnumerable<string> Results()
-        {
-            return _results;
-        }
-
         public void CompleteConnect(Socket socket)
             => _socket = socket;
 
@@ -52,9 +47,7 @@
         //=> Send(cont?.ToText());
 
         public bool Continue(string script)
-        {
-            return Send(script);
-        }
+            => Send(script);
 
         public bool Connect(string hostName, int port)
         {
@@ -119,12 +112,8 @@
                 if (!_Context.Translate(pi, out var cont))
                     return Error($"Failed to translate {pi}");
 
-                cont.Scope = _Exec.Scope;
-                _Exec.Continue(cont);
-
-                _results.Clear();
-                foreach (var elem in _Exec.DataStack)
-                    _results.Add(_Context.Registry.ToPiScript(elem));
+                cont.Scope = Exec.Scope;
+                Exec.Continue(cont);
 
                 OnReceived?.Invoke(this, sender);
             }

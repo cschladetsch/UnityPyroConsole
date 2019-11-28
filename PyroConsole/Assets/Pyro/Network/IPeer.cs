@@ -3,17 +3,18 @@
     using System;
     using System.Collections.Generic;
     using Flow;
-    using Exec;
 
     /// <summary>
     /// General message passed from client to server.
+    /// NOTE that some methods are marked by the static analyser as being 'unused'. This is a lie, as they can
+    /// be called via script.
     /// </summary>
     public delegate void MessageHandler(IClient client, string text);
     public delegate void ConnectedHandler(IPeer peer, IClient client);
 
     /// <inheritdoc />
     /// <summary>
-    /// A Peer listens to incoming connections, and can connect to other peers.
+    /// A Peer listens to incoming connections, and can connect to other Peers.
     /// </summary>
     public interface IPeer
         : IProcess
@@ -69,6 +70,8 @@
         IFuture<Tr> RemoteCall<Tr>(NetId agentId, string methodName);
         IFuture<Tr> RemoteCall<Tr, T0>(NetId agentId, string methodName, T0 t0);
         IFuture<Tr> RemoteCall<Tr, T0, T1>(NetId agentId, string methodName, T0 t0, T1 t1);
+        bool To(int n, string piScript);
+        bool ShowStack(int i);
     }
 }
 
