@@ -105,6 +105,7 @@ namespace App
 
         private void Peer_OnConnected(IPeer peer, IClient client)
         {
+            Debug.Log($"SharedTransform: Connected to {client}.");
             /*
             if (_connectNumber++ == 0)
             {
@@ -113,7 +114,7 @@ namespace App
             }
             */
 
-            Main.Instance.Peer.OnConnected -= Peer_OnConnected;
+            //Main.Instance.Peer.OnConnected -= Peer_OnConnected;
             _connect = true;
             _client = client;
         }
