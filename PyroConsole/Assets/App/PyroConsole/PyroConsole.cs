@@ -63,14 +63,7 @@ namespace App
         private ColoriseRho _coloriseRho;
         private readonly ColoriseRho _colorisePi;
         private IPeer _peer;
-        private string HostName => _peer?.Remote?.HostName ?? "local";
-        private int HostPort => _peer?.Remote?.HostPort ?? 0;
-
-        private static readonly string[] _namespaces =
-        {
-            "App.Views.Impl", "App.Agents.Impl", "App.Models.Impl",
-            "App", "App.Simple", "UnityEngine", "UnityEngine.UI"
-        };
+        private string Prompt => _peer?.Remote?.Socket?.RemoteEndPoint.ToString() ?? "local";
 
         private ConsoleInput _input => _pyro.Language == ELanguage.Pi ? PiInput : RhoInput;
         private TextMeshProUGUI _coloredInput => _pyro.Language == ELanguage.Pi ? ColoredPi : ColoredRho;
@@ -272,6 +265,13 @@ namespace App
 
         private static object GetInstances(string typeName)
             => FindType(typeName, out var type) ? FindObjectsOfType(type) : null;
+
+        // namespaces to check for typenames
+        private static readonly string[] _namespaces =
+        {
+            "App.Views.Impl", "App.Agents.Impl", "App.Models.Impl",
+            "App", "App.Simple", "UnityEngine", "UnityEngine.UI"
+        };
 
         private static bool FindType(string typeName, out Type type)
         {

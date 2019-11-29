@@ -1,10 +1,12 @@
 {
   "dependencies": {
-    "com.cschladetsch.colib": "file:s:/Packages/colib",
-    "com.cschladetsch.flow": "file:s:/Packages/Flow",
-    "com.neuecc.unirx": "file:s:/Packages/UniRx",
+    "com.cschladetsch.colib": "file:w:/Packages/colib",
+    "com.cschladetsch.flow": "file:w:/Packages/Flow",
+    "com.neuecc.unirx": "file:w:/Packages/UniRx",
     "com.unity.analytics": "3.3.2",
     "com.unity.package-manager-ui": "2.1.2",
+    "com.unity.quicksearch": "1.4.1",
+    "com.unity.shadergraph": "5.7.2",
     "com.unity.textmeshpro": "2.0.1",
     "com.unity.timeline": "1.0.0",
     "com.unity.modules.ai": "1.0.0",
