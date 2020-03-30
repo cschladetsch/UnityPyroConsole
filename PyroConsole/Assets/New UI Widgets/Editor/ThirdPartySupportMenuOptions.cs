@@ -45,7 +45,7 @@
 				ScriptingDefineSymbols.Add(DataBindSupport);
 
 				// ScriptsRecompile.SetStatus("DataBind", ScriptsRecompile.StatusSymbolsAdded);
-				UnityEditorInternal.InternalEditorUtility.RequestScriptReload();
+				EditorUtility.RequestScriptReload();
 			}
 		}
 
@@ -136,7 +136,7 @@
 				AssemblyDefinitionsEditor.Add(TMProAssemblies, TMProPackage);
 
 				// ScriptsRecompile.SetStatus("TMPro", ScriptsRecompile.StatusSymbolsAdded);
-				UnityEditorInternal.InternalEditorUtility.RequestScriptReload();
+				EditorUtility.RequestScriptReload();
 
 				ImportTMProPackage();
 			}
@@ -236,7 +236,7 @@
 				AssemblyDefinitionsEditor.Add(TMProAssemblies, TMProPackage);
 
 				// ScriptsRecompile.SetStatus("TMPro", ScriptsRecompile.StatusSymbolsAdded);
-				UnityEditorInternal.InternalEditorUtility.RequestScriptReload();
+				EditorUtility.RequestScriptReload();
 				ImportTMProPackage();
 			}
 		}
